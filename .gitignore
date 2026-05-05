@@ -1,0 +1,29 @@
+# Build artifacts
+Debug/
+Release/
+x64/
+x86/
+
+# Visual Studio files
+.vs/
+*.vcxproj.user
+*.suo
+*.user
+*.userosscache
+*.sln.docview
+*.vcxproj.filters
+*.vcxproj
+*.slnx
+
+# Compiled files
+*.obj
+*.pch
+*.ilk
+*.pdb
+*.idb
+*.ipch
+*.exe
+
+# Keep source files
+!*.cpp
+!*.h

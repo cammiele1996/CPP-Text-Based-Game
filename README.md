@@ -38,8 +38,6 @@ You wake up in a tavern with no memory. You were hired to slay a dragon — and 
 [Church] - [Windmill] - [Road Out of Town]
 ```
 
-> There is also a secret tunnel connecting the Forest and the Dungeon. Find it yourself.
-
 ---
 
 ## Enemies

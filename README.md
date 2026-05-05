@@ -1,4 +1,6 @@
-# Dragon Slayer — C++ Text-Based RPG
+# Dragon Slayer — C++ Text-Based RPG (WIP)
+I am a Computer Sciene Major, currently in school. This is a fun project to solidfy my knowledge of C++
+If you stumble across this, feel free to read my code and provide feedback.
 
 A text-based adventure RPG built in C++ using object-oriented design principles.
 

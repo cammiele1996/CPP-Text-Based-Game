@@ -104,27 +104,6 @@ Tests.h/.cpp   — Dev test suite (Test Tavern — combat and room setup tests)
 
 ---
 
-## Status
-
-- [x] Full map and room connections
-- [x] Movement and visited room tracking
-- [x] Character creation and difficulty selection
-- [x] Dynamic enemy spawning with difficulty scaling
-- [x] Search, take, inventory, status, help
-- [x] NPC dialogue system (basic)
-- [x] Secret tunnel with death trap
-- [x] Risk check system
-- [x] Turn-based combat (stab, slash, block, potion, run)
-- [x] Dev test suite (Test Tavern)
-- [ ] Quest-state aware NPC dialogue
-- [ ] Win and lose conditions
-- [ ] Enemy move pools and status effects
-- [ ] Checkpoints and save/load system
-- [ ] Training Arena game mode
-- [ ] ImGui GUI with Blender room backgrounds
-
----
-
 ## Roadmap
 
 ### ✅ Phase 0 — Foundation *(complete)*

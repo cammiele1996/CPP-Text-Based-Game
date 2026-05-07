@@ -125,6 +125,52 @@ Tests.h/.cpp   — Dev test suite (Test Tavern — combat and room setup tests)
 
 ---
 
+## Roadmap
+
+### Phase 1 — Core Game Loop *(current)*
+- [ ] Tiered enemy spawning — restrict heavy enemies to deep rooms
+- [ ] Gear stat system — items modify player stats on pickup
+- [ ] `checkLose()` — death handling and lose screen
+- [ ] Mountain Pass / Lair death gate — instant death without shield
+- [ ] `checkWin()` — triggers after dragon dies
+- [ ] Win and lose screens
+
+### Phase 2 — Quest Chain and Story
+- [ ] Quest-state aware NPC dialogue — all key NPCs react to player progress
+- [ ] Torch quest — Guard rewards torch after condition is met
+- [ ] Blacksmith quest — deliver Eldrium Ore, receive Dragon Lance
+- [ ] Suit of Armor — appears in Castle after dungeon is cleared
+- [ ] Chaos NPCs — Drunk NPC, Apprentice, Tavern Patrons, Priest, Miller with mixed/false info
+- [ ] Decoy items in Church and Windmill
+- [ ] Secret tunnel discovery prompt fully implemented
+- [ ] Road Out of Town tied to quest state
+
+### Phase 3 — Combat Depth
+- [ ] Enemy move pools — each enemy type has its own attack set
+- [ ] Status effects — stun, weakened, pickpocketed
+- [ ] Enemy phases — behavior shifts below 50% HP
+- [ ] Dragon boss fight — dragonfire mechanic, shield requirement, Lance bonus damage, phases
+- [ ] Run chance scaling by difficulty
+- [ ] Checkpoints and save/load system
+- [ ] Training Arena game mode
+
+### Phase 4 — Random NPC Spawning
+- [ ] Chaos NPCs spawn randomly each run like enemies
+- [ ] Player must read dialogue carefully to separate real info from false
+
+### Phase 5 — Polish and Balance
+- [ ] Full balance pass — enemy stats, player progression, difficulty curve
+- [ ] Inventory shows stat bonuses from gear
+- [ ] Status screen shows base vs equipped stats
+- [ ] Comprehensive debug pass — input handling, memory leaks, edge cases
+
+### Phase 6 — ImGui Frontend
+- [ ] ImGui GUI replacing terminal output
+- [ ] Blender renders as room backgrounds
+- [ ] Combat, inventory, and status UI panels
+
+---
+
 ## Changelog
 
 ### v0.2

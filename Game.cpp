@@ -577,7 +577,8 @@ void Game::fight(string input) {
         printCentered("Enemy not found in this room.");
         printBorder();
         pause();
-        return;
+        displayRoom();
+		return;
     }
 
     // --- Combat Loop ---
@@ -594,13 +595,25 @@ void Game::fight(string input) {
 
         // Stab — player attacks first, then enemy counterattacks
         if (action == "stab") {
-            int playerReduction = rand() % (target->getDefense() + 1);
-            int playerDamage    = max(0, player.getAttackPower() - playerReduction);
+            int playerDamage = player.getAttackPower();
             target->takeDamage(playerDamage);
             cout << endl << "You stabbed the " << target->getName() << " for " << playerDamage << " damage!" << endl;
             pause();
 
+            // Check if enemy is dead — remove from room and end combat
+            if (target->getHealth() <= 0) {
+                currentRoom->removeEnemy(target);
+                clearScreen();
+                printBorder();
+                printCentered("You defeated the " + target->getName() + "!");
+                printBorder();
+                pause();
+                break;
+            }
+
             combatStatus(target);
+            cout << "> " << action << endl;
+            printDivider(); cout << endl;
 
             int enemyReduction = rand() % (player.getDefense() + 1);
             int enemyDamage    = max(0, target->getAttackPower() - enemyReduction);
@@ -614,16 +627,34 @@ void Game::fight(string input) {
             int enemyReduction = rand() % (player.getDefense() + 1);
             int enemyDamage    = max(0, target->getAttackPower() - enemyReduction);
             player.takeDamage(enemyDamage);
-            cout << target->getName() << " hit you for " << enemyDamage << " damage!" << endl;
+            cout << endl << target->getName() << " hit you for " << enemyDamage << " damage!" << endl;
             pause();
 
             combatStatus(target);
+            cout << "> " << action << endl;
+            printDivider(); cout << endl;
 
             int playerReduction = rand() % (target->getDefense() + 1);
-            int playerDamage    = (int)(max(0, player.getAttackPower() - playerReduction) * 1.5);
+            int playerDamage = (int)(player.getAttackPower() * 1.5) - playerReduction;
+            if (playerDamage < 0) playerDamage = 0;
             target->takeDamage(playerDamage);
             cout << "You slashed the " << target->getName() << " for " << playerDamage << " damage!" << endl;
             pause();
+
+            combatStatus(target);
+            cout << "> " << action << endl;
+			printDivider(); cout << endl;
+
+            // Check if enemy is dead — remove from room and end combat
+            if (target->getHealth() <= 0) {
+                currentRoom->removeEnemy(target);
+                clearScreen();
+                printBorder();
+                printCentered("You defeated the " + target->getName() + "!");
+                printBorder();
+                pause();
+                break;
+            }
         }
 
         // Block — no player attack, incoming damage reduced based on difficulty
@@ -637,7 +668,7 @@ void Game::fight(string input) {
             else                             enemyDamage = (int)(enemyDamage * 0.25);
 
             player.takeDamage(enemyDamage);
-            cout << "The enemy hit you for " << initialDamage << ", your block reduced it to " << enemyDamage << "." << endl;
+            cout << endl << "The enemy hit you for " << initialDamage << ", your block reduced it to " << enemyDamage << "." << endl;
             pause();
         }
 
@@ -648,9 +679,9 @@ void Game::fight(string input) {
                 else if (difficulty == "hard")   potionCooldown = 7;
                 else                             potionCooldown = 3;
                 player.setHealth(player.getHealth() + 40);
-                cout << "You used a potion and healed 40 HP." << endl;
+                cout << endl << "You used a potion and healed 40 HP." << endl;
             } else {
-                cout << "You can't use your potion for another " << potionCooldown << " turns." << endl;
+                cout << endl << "You can't use your potion for another " << potionCooldown << " turns." << endl;
             }
             pause();
         }
@@ -676,16 +707,8 @@ void Game::fight(string input) {
         // Tick down potion cooldown at the end of every turn
         if (potionCooldown > 0) potionCooldown--;
 
-        // Check if enemy is dead — remove from room and end combat
-        if (target->getHealth() <= 0) {
-            currentRoom->removeEnemy(target);
-            clearScreen();
-            printBorder();
-            printCentered("You defeated the " + target->getName() + "!");
-            printBorder();
-            pause();
-        }
 
+		// Check for enemy death
         if (player.getHealth() <=0) {
             clearScreen();
             printBorder();

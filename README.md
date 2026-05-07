@@ -64,8 +64,8 @@ Each round the player chooses one of five actions:
 
 | Action | Description |
 |---|---|
-| `stab` | You attack first, then the enemy counterattacks |
-| `slash` | Enemy attacks first, you hit for 1.5× damage |
+| `stab` | Always deals full attack power — no defense reduction. You hit first, enemy counterattacks. |
+| `slash` | Enemy attacks first, you retaliate for `(attackPower × 1.5) - defense`. High risk, high reward. |
 | `block` | Reduces incoming damage — 75% on easy, 50% on medium, 30% on hard |
 | `use potion` | Heals 40 HP on a cooldown (3 / 5 / 7 turns by difficulty) |
 | `run` | 50/50 chance to escape. Failure keeps you in the fight |
@@ -122,6 +122,18 @@ Tests.h/.cpp   — Dev test suite (Test Tavern — combat and room setup tests)
 - [ ] Checkpoints and save/load system
 - [ ] Training Arena game mode
 - [ ] ImGui GUI with Blender room backgrounds
+
+---
+
+## Changelog
+
+### v0.2
+- Rebalanced combat — stab now deals guaranteed full attack power with no defense reduction
+- Fixed slash formula to apply the 1.5× multiplier before defense reduction
+- Fixed enemies dealing damage on the turn they die
+
+### v0.1
+- Initial build — core game loop, movement, combat, enemy spawning, difficulty scaling, dev test suite
 
 ---
 

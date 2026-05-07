@@ -6,82 +6,67 @@
 #include <ctime>
 #include <random>
 
-
 using namespace std;
 
+// Initializes the entire game world — rooms, connections, items, NPCs, and enemy spawns.
+// Called after difficulty is set so spawn counts and stat scaling work correctly.
 void Game::setup() {
-    
-    srand(time(0));
 
-    // Create rooms
-	// Calls the Room constructor to create new Room objects with a name and description, and assigns them to pointers.
-    Room* tavern = new Room("Tavern", "A lively tavern filled with the sounds of laughter and music.");
-	Room* windmill = new Room("Windmill", "An old windmill on the outskirts of town, creaking in the wind.");
-	Room* church = new Room("Church", "A small, peaceful church with stained glass windows and a quiet atmosphere.");
-    Room* forest = new Room("Forest", "A dense, dim lit forest on the edge of town.");
-    Room* blacksmith = new Room("Blacksmith", "A small blacksmith shop with a forge and various weapons on display.");
-	Room* castle = new Room("Castle", "An imposing castle with towering walls and a large gate.");
-	Room* kitchen = new Room("Castle Kitchen", "A bustling kitchen with the aroma of food and the clatter of pots and pans.");
-    Room* dungeon = new Room("Dungeon", "A dark, damp dungeon filled with the stench of decay.");
-	Room* townSquare = new Room("Town Square", "The heart of the village, where villagers gather and events take place.");
-	Room* mountainPass = new Room("Mountain Pass", "A treacherous path through the mountains, leading to the dragon's lair.");
-    Room* lair = new Room("Dragon's Lair", "A cavernous lair filled with treasure and the fearsome dragon.");
-	Room* road = new Room("Road Out of Town", "A dusty road leading out of the village and towards the unknown.");
+    srand(static_cast<unsigned int>(time(nullptr)));
 
+    // --- Create Rooms ---
+    Room* tavern       = new Room("Tavern",           "A lively tavern filled with the sounds of laughter and music.");
+    Room* windmill     = new Room("Windmill",          "An old windmill on the outskirts of town, creaking in the wind.");
+    Room* church       = new Room("Church",            "A small, peaceful church with stained glass windows and a quiet atmosphere.");
+    Room* forest       = new Room("Forest",            "A dense, dim lit forest on the edge of town.");
+    Room* blacksmith   = new Room("Blacksmith",        "A small blacksmith shop with a forge and various weapons on display.");
+    Room* castle       = new Room("Castle",            "An imposing castle with towering walls and a large gate.");
+    Room* kitchen      = new Room("Castle Kitchen",    "A bustling kitchen with the aroma of food and the clatter of pots and pans.");
+    Room* dungeon      = new Room("Dungeon",           "A dark, damp dungeon filled with the stench of decay.");
+    Room* townSquare   = new Room("Town Square",       "The heart of the village, where villagers gather and events take place.");
+    Room* mountainPass = new Room("Mountain Pass",     "A treacherous path through the mountains, leading to the dragon's lair.");
+    Room* lair         = new Room("Dragon's Lair",     "A cavernous lair filled with treasure and the fearsome dragon.");
+    Room* road         = new Room("Road Out of Town",  "A dusty road leading out of the village and towards the unknown.");
 
-
-    // Set room connections
-    // Tavern connections (Start)
-	// The setNorth and setSouth functions are called on the tavern room to establish connections to the gates and village rooms respectively.
+    // --- Set Room Connections ---
+    // Each room is linked to its neighbors via cardinal directions.
+    // The secret Forest <-> Dungeon tunnel is handled separately in move().
     tavern->setNorth(townSquare);
     tavern->setSouth(windmill);
-    
-	// Windmill connections
+
     windmill->setNorth(tavern);
-	windmill->setEast(road);
+    windmill->setEast(road);
     windmill->setWest(church);
 
-	// Church connections
-	church->setEast(windmill);
+    church->setEast(windmill);
 
-	// Town Square connections
     townSquare->setNorth(castle);
-	townSquare->setSouth(tavern);
-	townSquare->setEast(blacksmith);
-	townSquare->setWest(forest);
+    townSquare->setSouth(tavern);
+    townSquare->setEast(blacksmith);
+    townSquare->setWest(forest);
 
-    // Forest connections
     forest->setEast(townSquare);
 
-    // Blacksmith connections
     blacksmith->setWest(townSquare);
 
-    // Dungeon connections
     dungeon->setEast(castle);
-    
-	// Castle connections
-	castle->setNorth(mountainPass);
-	castle->setSouth(townSquare);
-	castle->setEast(kitchen);
-	castle->setWest(dungeon);
 
-	// Kitchen connections
-	kitchen->setWest(castle);
+    castle->setNorth(mountainPass);
+    castle->setSouth(townSquare);
+    castle->setEast(kitchen);
+    castle->setWest(dungeon);
 
-    // Lair connections
-	// The setSouth function is called on the lair room to establish a connection back to the stairs room.
+    kitchen->setWest(castle);
+
     lair->setSouth(mountainPass);
 
-	// Mountain Pass connections
-	mountainPass->setNorth(lair);
-	mountainPass->setSouth(castle);
+    mountainPass->setNorth(lair);
+    mountainPass->setSouth(castle);
 
-	// Road connections
-	road->setWest(windmill);
+    road->setWest(windmill);
 
-
-    // Add rooms to rooms vector
-	// Each of the created room pointers is added to the rooms vector using the push_back function, allowing for easy access and management of all rooms in the game.
+    // --- Add Rooms to Master List ---
+    // The rooms vector is used by findRoom() to locate rooms by name.
     rooms.push_back(townSquare);
     rooms.push_back(forest);
     rooms.push_back(blacksmith);
@@ -93,87 +78,56 @@ void Game::setup() {
     rooms.push_back(mountainPass);
     rooms.push_back(lair);
     rooms.push_back(castle);
-	rooms.push_back(road);
+    rooms.push_back(road);
 
-
-
-    // Set starting room
+    // --- Set Starting Room ---
     currentRoom = tavern;
-    // Commit room to memory
-	visitedRooms.insert(currentRoom->getName());
+    visitedRooms.insert(currentRoom->getName());
 
-    // Set items in rooms
+    // --- Place Items ---
+    // isRequired (3rd param) flags items needed to face the dragon.
+    Item helmet("Helmet",                "A sturdy helmet that offers protection against head injuries.", true);
+    Item shield("Anti-Dragonfire Shield","A shield designed to protect against dragon fire.",             true);
+    Item ore   ("Eldrium Ore",           "A rare ore that is said to be able to harm dragons.",           false);
 
-    // Helmet in Forest
-	// An Item object named helmet is created with the name "Helmet", a description, and a boolean indicating that it is required for the final boss. 
-    // This item is then added to the f`orest room using the addItem function.
-    Item helmet("Helmet", "A sturdy helmet that offers protection against head injuries.", true);
     forest->addItem(helmet);
-
-
-    // Anti-Dragonfire Shield and Eldrium Ore in Dungeon
-	// Two Item objects named shield and ore are created with their respective names, descriptions, and boolean values indicating whether they are required for the final boss.
-    Item shield("Anti-Dragonfire Shield", "A shield designed to protect against dragon fire.", true);
-    Item ore("Eldrium Ore", "A rare ore that is said to be able to harm dragons.", false);
     dungeon->addItem(shield);
     dungeon->addItem(ore);
 
+    // --- Place NPCs ---
+    // TODO: Replace static dialogue with quest-state aware dialogue system.
+    NPC villageElder("Village Elder", "A wise old man.",          "The Eldrium Ore is in the dungeon. Speak to the guard at the Castle Gates first.");
+    NPC blacksmithNPC("Blacksmith",   "A skilled blacksmith.",    "I need Eldrium Ore to forge the lance. Talk to the Village Elder.");
+    NPC bartender("Tavern Keeper",    "A friendly tavern keeper.","Take this ale for courage. You are going to need it.");
+    NPC guard("Castle Guard",         "A stern guard.",           "You will need a torch before entering the dungeon. Check by the gate.");
 
-
-    // Set NPC dialogues
-	// Dialogue strings are created for each NPC, providing information about the location of items and guidance for the player.
-    string elderDialogue = "The Eldrium Ore is in the dungeon. Speak to the guard at the Castle Gates first.";
-    string blacksmithDialogue = "I need Eldrium Ore to forge the lance. Talk to the Village Elder.";
-    string bartenderDialogue = "Take this ale for courage. You are going to need it.";
-    string guardDialogue = "You will need a torch before entering the dungeon. Check by the gate.";
-
-
-
-	// Add NPCs to rooms
-  
-    // Village Elder NPC
-	// NPC objects are created for each character, with their respective names, descriptions, and dialogue. 
-    // These NPCs are then added to their corresponding rooms using the addNPC function.
-    NPC villageElder("Village Elder", "A wise old man.", elderDialogue);
     townSquare->addNPC(villageElder);
-
-    // Blacksmith NPC
-    NPC blacksmithNPC("Blacksmith", "A skilled blacksmith.", blacksmithDialogue);
     blacksmith->addNPC(blacksmithNPC);
-
-    // Bartender NPC  
-    NPC bartender("Tavern Keeper", "A friendly tavern keeper.", bartenderDialogue);
     tavern->addNPC(bartender);
-    
-    // Castle Guard NPC
-    NPC guard("Castle Guard", "A stern guard.", guardDialogue);
     castle->addNPC(guard);
 
-	// Add enemies
+    // --- Spawn Enemies ---
+    // Forest and Dungeon always have an encounter. Roaming count scales with difficulty.
+    spawnEncounter(forest);
+    spawnEncounter(dungeon);
 
-    spawnEncounter(forest);     // Guarenteed spawns in the forest and dungeon
-	spawnEncounter(dungeon);
-    
-	vector<Room*> roamingRooms = { townSquare, castle, mountainPass, kitchen, windmill, church, }; // Possible spawns in town square, castle, and mountain pass
+    vector<Room*> roamingRooms = { townSquare, castle, mountainPass, kitchen, windmill, church };
     int roamingCount = 0;
-    if (difficulty == "easy") {
-        roamingCount = 2;
-    } else if (difficulty == "medium") {
-        roamingCount = 4;
-    } else if (difficulty == "hard") {
-        roamingCount = 6;
-	}
+    if      (difficulty == "easy")   roamingCount = 2;
+    else if (difficulty == "medium") roamingCount = 4;
+    else if (difficulty == "hard")   roamingCount = 6;
 
-    shuffle(roamingRooms.begin(), roamingRooms.end(), default_random_engine(time(0)));
+    // Shuffle eligible rooms so roaming enemies land in random locations each run.
+    const auto roamingSeed = static_cast<default_random_engine::result_type>(time(nullptr));
+    shuffle(roamingRooms.begin(), roamingRooms.end(), default_random_engine(roamingSeed));
     for (int i = 0; i < roamingCount; i++) {
         spawnEncounter(roamingRooms[i]);
     }
-
 }
 
 
 
-// Display current room information
+// Displays the current room name, description, and input prompt.
 void Game::displayRoom() {
     clearScreen();
     printBorder();
@@ -181,16 +135,19 @@ void Game::displayRoom() {
     printBorder();
     cout << endl;
     cout << currentRoom->getDescription() << endl;
-	cout << endl << "What would you like to do?" << endl;
+    cout << endl << "What would you like to do?" << endl;
     cout << endl;
     printDivider();
 }
 
 
 
-// Move to a different room based on the direction input
+// Handles all player movement. Checks for special cases first (secret tunnel, Road Out of Town)
+// then falls through to standard directional movement.
 void Game::move(string direction) {
-    // Secret tunnel from Forest to Dungeon
+
+    // --- Secret Tunnel: Forest -> Dungeon (north) ---
+    // Not shown in search results. No torch = death.
     if (currentRoom->getName() == "Forest" && (direction == "north" || direction == "North")) {
         clearScreen();
         printBorder();
@@ -220,6 +177,8 @@ void Game::move(string direction) {
         return;
     }
 
+    // --- Secret Tunnel: Dungeon -> Forest (south) ---
+    // Return path through the same tunnel. No torch check on the way back.
     if (currentRoom->getName() == "Dungeon" && (direction == "south" || direction == "South")) {
         clearScreen();
         printBorder();
@@ -238,71 +197,102 @@ void Game::move(string direction) {
         return;
     }
 
-	Room* nextRoom = nullptr;                                       // Initialize nextRoom to nullptr, which will be used to store the room in the direction the player wants to move
-	if (direction == "North" || direction == "north") {             // Check if the input direction is "North" (case-insensitive)
-		nextRoom = currentRoom->getNorth();                         // If the direction is north, set nextRoom to the room to the north of the current room
-	} else if (direction == "South" || direction == "south") {      // Check if the input direction is "South" (case-insensitive)
-        nextRoom = currentRoom->getSouth();                         // If the direction is south, set nextRoom to the room to the south of the current room
-    } else if (direction == "East" || direction == "east") {        // Check if the input direction is "East" (case-insensitive)
-        nextRoom = currentRoom->getEast();                          // If the direction is east, set nextRoom to the room to the east of the current room
-    } else if (direction == "West" || direction == "west") {        // Check if the input direction is "West" (case-insensitive)
-        nextRoom = currentRoom->getWest();                          // If the direction is west, set nextRoom to the room to the west of the current room
+    // --- Road Out of Town: Windmill -> East ---
+    // Flavor text changes based on whether the player has spoken to the Village Elder.
+    // Choosing to continue sets gameOver. Turning back returns to the Windmill.
+    if (currentRoom->getName() == "Windmill" && direction == "east") {
+        clearScreen();
+        printBorder();
+        printCentered("Road Out of Town");
+        printBorder();
+        if (talkedTo.count("Village Elder")) {
+            printWrapped(
+                "You know what's waiting for you up in those mountains. You've always known. "
+                "And yet here you are, walking the other way. The Elder's words echo in your head. "
+                "You could keep walking. Nobody would know. Except you..."
+            );
+        } else {
+            printWrapped(
+                "The road stretches out ahead of you into nothing. You don't know where you're going or why. "
+                "Something in the back of your skull is screaming at you to turn around. "
+                "On the other hand, your head is still pounding. Maybe leaving is the smart move."
+            );
+        }
+        printDivider();
+        cout << "Do you continue down the road and abandon your quest? (yes/no): ";
+        if (getYesNo()) {
+            gameOver = true;
+        } else {
+            clearScreen();
+            printBorder();
+            printCentered("You return to finish your quest.");
+            printBorder();
+            pause();
+            currentRoom = findRoom("Windmill");
+            visitedRooms.insert(currentRoom->getName());
+            displayRoom();
+        }
+        return;
     }
 
-	if (nextRoom != nullptr) {                      // Check if nextRoom is not nullptr, meaning there is a valid room in the direction the player wants to move
-		currentRoom = nextRoom;                     // If there is a valid room, update currentRoom to nextRoom, effectively moving the player to the new room
-		visitedRooms.insert(currentRoom->getName()); // Add the name of the new current room to the visitedRooms set to track that the player has visited this room
-		displayRoom();                              // After moving to the new room, call displayRoom to show the name and description of the new current room
+    // --- Standard Movement ---
+    // Maps direction string to the corresponding room pointer.
+    Room* nextRoom = nullptr;
+    if      (direction == "north" || direction == "North") nextRoom = currentRoom->getNorth();
+    else if (direction == "south" || direction == "South") nextRoom = currentRoom->getSouth();
+    else if (direction == "east"  || direction == "East")  nextRoom = currentRoom->getEast();
+    else if (direction == "west"  || direction == "West")  nextRoom = currentRoom->getWest();
 
+    if (nextRoom != nullptr) {
+        currentRoom = nextRoom;
+        visitedRooms.insert(currentRoom->getName());
+        displayRoom();
     } else {
         clearScreen();
         printBorder();
-		printCentered("Invalid Direction");
-		printCentered("Hint: Try the 'search' command to see available exits.");
+        printCentered("Invalid Direction");
+        printCentered("Hint: Try the 'search' command to see available exits.");
         printBorder();
         pause();
         displayRoom();
-                                                    //  so display a message indicating that the player cannot go that way
     }
 }
 
 
 
-// Perform a risk check when searching or taking from a room with enemies
+// Checks if the player can safely search or take from a room with enemies present.
+// Returns true if safe to proceed, false if the player declines or gets caught.
+// 80% chance to slip past unnoticed, 20% chance of death.
 bool Game::riskCheck() {
-	if (currentRoom->getEnemies().empty()) {                                    // Check if there are no enemies in the current room by calling getEnemies() and checking if it is empty
-        return true;
-    }
+    if (currentRoom->getEnemies().empty()) return true;
+
     clearScreen();
     printBorder();
     printCentered("You see enemies in the room!");
     printBorder();
     cout << "Are you sure you would like to proceed? (yes/no): ";
+    if (!getYesNo()) return false;
 
-    if (!getYesNo()) {                                                          // Call getYesNo to get a yes or no response from the player.
-        return false;
-    }
     clearScreen();
-	printBorder();
-	printCentered("You decide to proceed...");
+    printBorder();
+    printCentered("You decide to proceed...");
     printBorder();
     pause();
-    cout << endl;
-    int risk = rand() % 100;                                                    // Generate a random number between 0 and 99
-    if (risk > 20) {                                                            // 20% chance of success
+
+    int risk = rand() % 100;
+    if (risk > 20) {
         clearScreen();
         printBorder();
-		printCentered("Success!");
-		printCentered("You slipped past unnoticed");
-		printBorder();
+        printCentered("Success!");
+        printCentered("You slipped past unnoticed.");
+        printBorder();
         pause();
         return true;
-    }
-	else {                                                                      // If the random number is 20 or less, it means the player has been caught by the enemies.
+    } else {
         clearScreen();
         printBorder();
         printCentered("You were caught by the enemies!");
-        printCentered("You have been killed");
+        printCentered("You have been killed.");
         printBorder();
         pause();
         gameOver = true;
@@ -312,82 +302,69 @@ bool Game::riskCheck() {
 
 
 
-// Search the current room for items, NPCs, enemies, and exits
+// Searches the current room and displays items, NPCs, enemies, and exits.
+// Exits show the room name only if previously visited, otherwise "Unknown".
 void Game::search() {
     clearScreen();
-
-	// Display search results
     printBorder();
-	printCentered("Searching the " + currentRoom->getName());
-	printBorder();
-	pause();              // Pause the game to allow the player to read the search header before displaying the room information
+    printCentered("Searching the " + currentRoom->getName());
+    printBorder();
+    pause();
 
-
+    // Items
     clearScreen();
     printBorder();
-
-	// Items in the room
     printCentered("Items in the " + currentRoom->getName());
     printBorder();
     for (const auto& item : currentRoom->getItems()) {
         cout << " - " << item.getName() << ": " << item.getDescription() << endl;
     }
-	if (currentRoom->getItems().empty()) {
-        cout << "No items found in this room." << endl;
-    }
-    printDivider();
-	pause();			  // Pause the game to allow the player to read the items in the room before displaying the NPCs and enemies
-
-
-    clearScreen();
-    printBorder();
-
-	// NPCs in the room
-	printCentered("NPCs in the " + currentRoom->getName());
-    printBorder();
-	for (const auto& npc : currentRoom->getNPCs()) {                            // Loop through each NPC in the current room using a range-based for loop
-		cout << " - " << npc.getName() << ": " << npc.getDescription() << endl; // Display the name and description of each NPC in the room
-    }
-    if (currentRoom->getNPCs().empty()) {
-        cout << "No NPCs found in this room." << endl;
-	}
+    if (currentRoom->getItems().empty()) cout << "No items found in this room." << endl;
     printDivider();
     pause();
 
+    // NPCs
     clearScreen();
     printBorder();
-
-	// Enemies in the room
-	printCentered("Enemies in the " + currentRoom->getName());
+    printCentered("NPCs in the " + currentRoom->getName());
     printBorder();
-	for (const auto& enemy : currentRoom->getEnemies()) {   // Loop through each enemy in the current room using a range-based for loop
-		cout << " - " << enemy->getName() << endl;          // Display the name of each enemy in the room. Note that enemy is a pointer, so we use the arrow operator (->) to access its getName() method.
+    for (const auto& npc : currentRoom->getNPCs()) {
+        cout << " - " << npc.getName() << ": " << npc.getDescription() << endl;
     }
-	if (currentRoom -> getEnemies().empty()) {
-        cout << "No enemies found in this room." << endl;
-    }
+    if (currentRoom->getNPCs().empty()) cout << "No NPCs found in this room." << endl;
     printDivider();
     pause();
 
-	clearScreen();
+    // Enemies
+    clearScreen();
     printBorder();
+    printCentered("Enemies in the " + currentRoom->getName());
+    printBorder();
+    for (const auto& enemy : currentRoom->getEnemies()) {
+        cout << " - " << enemy->getName() << endl;
+    }
+    if (currentRoom->getEnemies().empty()) cout << "No enemies found in this room." << endl;
+    printDivider();
+    pause();
 
-    // Exits from the room
-	printCentered("Exits from the " + currentRoom->getName());
+    // Exits — shows room name if visited, "Unknown" if not
+    clearScreen();
     printBorder();
-    if (currentRoom->getNorth() != nullptr) {
+    printCentered("Exits from the " + currentRoom->getName());
+    printBorder();
+    if (currentRoom->getNorth()) {
         string dest = visitedRooms.count(currentRoom->getNorth()->getName()) ? currentRoom->getNorth()->getName() : "Unknown";
         cout << " - North (" << dest << ")" << endl;
     }
-    if (currentRoom->getSouth() != nullptr) {
+    if (currentRoom->getSouth()) {
         string dest = visitedRooms.count(currentRoom->getSouth()->getName()) ? currentRoom->getSouth()->getName() : "Unknown";
         cout << " - South (" << dest << ")" << endl;
     }
-    if (currentRoom->getEast() != nullptr) {
+    if (currentRoom->getEast()) {
         string dest = visitedRooms.count(currentRoom->getEast()->getName()) ? currentRoom->getEast()->getName() : "Unknown";
         cout << " - East (" << dest << ")" << endl;
     }
-    if (currentRoom->getWest() != nullptr) {
+    if (currentRoom->getWest()) {
         string dest = visitedRooms.count(currentRoom->getWest()->getName()) ? currentRoom->getWest()->getName() : "Unknown";
         cout << " - West (" << dest << ")" << endl;
     }
@@ -398,269 +375,389 @@ void Game::search() {
 
 
 
-// Main game functionality
+// Main entry point for the game. Handles character creation, difficulty selection,
+// world setup, and the main input loop.
 void Game::run() {
 
-	// Display welcome message and instructions
+    // --- Welcome Screen + Character Creation ---
     clearScreen();
     printBorder();
-	printCentered("Welcome to the Dragon Slayer Adventure Game");
-	printBorder();
-	printWrapped("Your main quest is to gather the necessary items and defeat the dragon in its lair. Explore the world, talk to NPCs, and find the items you need to succeed.");
-	printWrapped("Be careful, as there are enemies lurking in some rooms. You can choose to risk searching or try to avoid them.");
-	cout << endl;
+    printCentered("Welcome to the Dragon Slayer Adventure Game");
+    printBorder();
+    printWrapped("Your main quest is to gather the necessary items and defeat the dragon in its lair. Explore the world, talk to NPCs, and find the items you need to succeed.");
+    printWrapped("Be careful, as there are enemies lurking in some rooms. You can choose to risk searching or try to avoid them.");
+    cout << endl;
     printWrapped("What is your name, brave adventurer?");
-	printDivider();
-
-	cout << "First Name: ";
-	
-	// Get player's first name
-	string playerFirstName;              // Variable to store player's name
-	getline(cin, playerFirstName);       // Read the player's name from input
-	player.setFirstName(playerFirstName);     // Set the player's name in the Player class
-    printDivider();
-    // Save this statement for after
-	// cout << "Type 'help' for a list of commands." << endl << endl;
-
-	cout << "Last Name: ";
-
-    // Get player's last name
-	string playerLastName;               // Variable to store player's last name
-	getline(cin, playerLastName);        // Read the player's last name from input
-	player.setLastName(playerLastName);     // Set the player's last name in the Player class
     printDivider();
 
-	cout << "Age: ";
-
-	// Get player's age
-	string playerAge;                    // Variable to store player's age
-	getline(cin, playerAge);                    // Read the player's age from input
-	player.setAge(playerAge);              // Set the player's age in the Player class
+    cout << "First Name: ";
+    string playerFirstName;
+    getline(cin, playerFirstName);
+    player.setFirstName(playerFirstName);
     printDivider();
 
-	cout << "Description (A few words about yourself): ";
+    cout << "Last Name: ";
+    string playerLastName;
+    getline(cin, playerLastName);
+    player.setLastName(playerLastName);
+    printDivider();
 
-	// Get player's description
-	string playerDescription;                    // Variable to store player's description
-	getline(cin, playerDescription);        // Read the player's description from input
-	player.setDescription(playerDescription);     // Set the player's description in the Player class
+    cout << "Age: ";
+    string playerAge;
+    getline(cin, playerAge);
+    player.setAge(playerAge);
+    printDivider();
+
+    cout << "Description (A few words about yourself): ";
+    string playerDescription;
+    getline(cin, playerDescription);
+    player.setDescription(playerDescription);
     printDivider();
     pause();
 
+    // --- Difficulty Selection ---
+    // Loops until a valid difficulty is entered. Must be set before setup()
+    // so enemy spawn counts and stat scaling work correctly.
     clearScreen();
-	printBorder();
-	printCentered("Select difficulty level (easy, medium, hard): ");
     printBorder();
-	// Get difficulty level
-	string selectedDifficulty;
-	cout << "> ";
-	getline(cin, selectedDifficulty);
+    printCentered("Select difficulty level (easy, medium, hard):");
+    printBorder();
+    string selectedDifficulty;
+    cout << "> ";
+    getline(cin, selectedDifficulty);
     transform(selectedDifficulty.begin(), selectedDifficulty.end(), selectedDifficulty.begin(), ::tolower);
-	while (selectedDifficulty != "easy" && selectedDifficulty != "medium" && selectedDifficulty != "hard") {
+    while (selectedDifficulty != "easy" && selectedDifficulty != "medium" && selectedDifficulty != "hard") {
         displayError();
         clearScreen();
-		printBorder();
-		printCentered("Select difficulty level (easy, medium, hard): ");
         printBorder();
-		cout << "> ";
-		getline(cin, selectedDifficulty);
+        printCentered("Select difficulty level (easy, medium, hard):");
+        printBorder();
+        cout << "> ";
+        getline(cin, selectedDifficulty);
         transform(selectedDifficulty.begin(), selectedDifficulty.end(), selectedDifficulty.begin(), ::tolower);
     }
 
     clearScreen();
     printBorder();
-	if (selectedDifficulty == "easy") {
+    if (selectedDifficulty == "easy") {
         printCentered("You have selected EASY difficulty.");
-        printCentered("Less powerful enemies and less encounters.");
-		printCentered("A good choice for new players or a more relaxed experience.");
+        printCentered("Less powerful enemies and fewer encounters.");
+        printCentered("A good choice for new players or a more relaxed experience.");
     } else if (selectedDifficulty == "medium") {
         printCentered("You have selected MEDIUM difficulty.");
         printCentered("Moderate enemies and a balanced number of encounters.");
-		printCentered("This is a good choice for players looking for a standard challenge.");
+        printCentered("A good choice for players looking for a standard challenge.");
     } else if (selectedDifficulty == "hard") {
         printCentered("You have selected HARD difficulty.");
         printCentered("Exceptionally powerful enemies and frequent encounters.");
-		printCentered("This is a good choice for experienced players looking for a tough challenge.");
+        printCentered("A good choice for experienced players looking for a tough challenge.");
     }
     printBorder();
 
-	difficulty = selectedDifficulty;
-    printDivider();
-    setup();    // Call the setup function to initialize the game world, create rooms, items, NPCs, and set up the player's starting conditions.
-
+    difficulty = selectedDifficulty;
+    setup();
     pause();
 
-	// Main game loop
-	displayRoom();              // Display the current room information at the start of the game loop
-	while (!gameOver) {         // Continue the game loop until the gameOver flag is set to true, which indicates that the game has ended either by winning or losing
-		cout << "> ";           // Display a prompt for the player to enter a command
-		string input;           // Variable to store the player's input command
-		getline(cin, input);    // Read the player's input command from the console
-		printDivider();     	// Display a divider after the player's input for better readability
-		cout << endl;           // Add an extra line after the divider for better readability
-		processInput(input);    // Call the processInput function to handle the player's command and update the game state accordingly based on the input provided
-	}
+    // --- Main Game Loop ---
+    displayRoom();
+    while (!gameOver) {
+        cout << "> ";
+        string input;
+        getline(cin, input);
+        printDivider();
+        cout << endl;
+        processInput(input);
+    }
 
-	// Display end game message based on win or lose condition
-	if (checkWin()) {   // Call the checkWin function to determine if the player has met the win condition for the game
+    // --- End Game ---
+    if (checkWin()) {
         cout << "Congratulations! You have defeated the dragon and completed your quest!" << endl;
-	}
-	else if (checkLose()) {   // Call the checkLose function to determine if the player has met the lose condition for the game
+    } else if (checkLose()) {
         cout << "Game Over! You have been defeated. Better luck next time!" << endl;
-	}
+    }
 }
 
 
 
-// Process player input and execute corresponding actions
+// Parses player input and routes to the correct function.
+// All input is lowercased before comparison.
 void Game::processInput(string input) {
-	transform(input.begin(), input.end(), input.begin(), ::tolower); // Convert input to lowercase for case-insensitive comparison
+    transform(input.begin(), input.end(), input.begin(), ::tolower);
 
-	// Check the player's input against valid commands and call the corresponding functions to execute the desired actions in the game.
-	// For example: if the input is "help", call the displayHelp function to show the list of available commands.
-	if (input == "help") {
+    if (input == "help") {
         displayHelp();
         pause();
-		displayRoom(); // Redisplay the current room information after showing the help message
+        displayRoom();
     } else if (input == "search") {
         search();
-  //      pause();
-		//displayRoom(); // Redisplay the current room information after showing the search results
     } else if (input == "inventory") {
         displayInventory();
     } else if (input == "status") {
         displayStatus();
         pause();
-		displayRoom(); // Redisplay the current room information after showing the player's status
+        displayRoom();
     } else if (input.substr(0, 3) == "go ") {
         move(input.substr(3));
-    } else if (input == "fight") {
-        fight();
+    } else if (input.substr(0, 6) == "fight ") {
+        fight(input.substr(6));
     } else if (input == "quit") {
         gameOver = true;
-	} else if (input == "take") {
-        take();
-     } else if (input.substr(0, 8) == "talk to ") {
-		 talkToNPC(input.substr(8));
-         pause();
-		 displayRoom(); // Redisplay the current room information after talking to the NPC
+    } else if (input.substr(0, 5) == "take ") {
+        take(input.substr(5));
+    } else if (input.substr(0, 8) == "talk to ") {
+        talkToNPC(input.substr(8));
+        pause();
+        displayRoom();
     } else {
         displayError();
-		displayRoom(); // Redisplay the current room information after showing the invalid command message
+        displayRoom();
     }
 }
 
 
 
-// Get a yes or no response from the player
-// Returns true or false respectively
-bool Game::getYesNo() {
-    string input;
-    while (true) {
-        cin >> input;
-        transform(input.begin(), input.end(), input.begin(), ::tolower);
-        if (input == "yes") return true;
-        if (input == "no") return false;
-        cout << "Please enter yes or no: ";
-    }
-}
-
-
-// Handle taking an item from the current room
-void Game::take() {
-    string input;
-	cout << "Which item would you like to take? (Enter the item name): " << endl;
-	getline(cin, input); // Read the item name from input
-
+// Takes item name as a parameter (passed from processInput via "take <item>").
+// Runs a risk check if enemies are present before adding the item to inventory.
+void Game::take(string itemName) {
     bool found = false;
     for (const auto& item : currentRoom->getItems()) {
-		// Check if the input matches the name of any item in the current room (case-insensitive)
-        if (item.getName() == input) {
-			found = true; // If a matching item is found, set found to true
-
-            if (!riskCheck()) { // Call riskCheck to determine if the player can safely take the item. 
-                return;         // If riskCheck returns false, it means the player has chosen not to proceed or has been caught by enemies, so we return early from the take function without taking the item.
-			}
-            else {
-                player.addItem(item); // If riskCheck returns true, it means the player can safely take the item, so we add the item to the player's inventory using the addItem function of the Player class.
-                currentRoom->removeItem(item); // After adding the item to the player's inventory, we remove the item from the current room using the removeItem function of the Room class to reflect that the item has been taken by the player.
-                clearScreen();
-                printBorder();
-				printCentered("You have taken the: " + item.getName()); // Display a message confirming that the player has taken the ite
-                printBorder();
-				pause(); // Pause the game to allow the player to read the confirmation message before redisplaying the current room information
-            }
+        if (item.getName() == itemName) {
+            found = true;
+            if (!riskCheck()) return;
+            player.addItem(item);
+            currentRoom->removeItem(item);
+            clearScreen();
+            printBorder();
+            printCentered("You have taken: " + item.getName());
+            printBorder();
+            pause();
         }
     }
     if (!found) {
-        cout << "Item not found in the room." << endl; // If no matching item is found after checking all items in the room, display a message indicating that the item was not found.
+        clearScreen();
+        printBorder();
+        printCentered("Item not found in this room.");
+        printBorder();
+        pause();
     }
     displayRoom();
 }
 
 
-// Display the player's current inventory of items
-void Game::displayInventory() {
-	cout << "Inventory:" << endl; // Display a header for the player's inventory
-    for (const auto& item : player.getInventory()) {
-        cout << " - " << item.getName() << ": " << item.getDescription() << endl; // Loop through each item in the player's inventory and display its name and description to the player.
-	}
-	if (player.getInventory().empty()) {
-        cout << " - (empty): Your inventory is empty." << endl; // If the player's inventory is empty, display a message indicating that the inventory is empty.
+
+// Turn-based combat. Player picks stab, slash, block, use potion, or run each turn.
+// Stab: player hits first, then enemy counterattacks.
+// Slash: enemy hits first, player hits for 1.5x damage.
+// Block: enemy hits but damage is reduced based on difficulty.
+// Use Potion: heals 40 HP on a cooldown that scales with difficulty.
+// Run: 50/50 chance to escape. Failure keeps the player in the fight.
+// On enemy death, it is removed from the room.
+void Game::fight(string input) {
+
+    // Find target enemy in current room (case-insensitive match)
+    Enemy* target = nullptr;
+    string inputLower = input;
+    transform(inputLower.begin(), inputLower.end(), inputLower.begin(), ::tolower);
+
+    for (const auto& enemy : currentRoom->getEnemies()) {
+        string enemyLower = enemy->getName();
+        transform(enemyLower.begin(), enemyLower.end(), enemyLower.begin(), ::tolower);
+        if (enemyLower == inputLower) {
+            target = enemy;
+            break;
+        }
     }
 
+    if (target == nullptr) {
+        clearScreen();
+        printBorder();
+        printCentered("Enemy not found in this room.");
+        printBorder();
+        pause();
+        return;
+    }
+
+    // --- Combat Loop ---
+    int potionCooldown = 0;
+    while (target->getHealth() > 0 && player.getHealth() > 0) {
+
+        combatStatus(target);
+        cout << "> ";
+
+        string action;
+        getline(cin, action);
+        transform(action.begin(), action.end(), action.begin(), ::tolower);
+        printDivider();
+
+        // Stab — player attacks first, then enemy counterattacks
+        if (action == "stab") {
+            int playerReduction = rand() % (target->getDefense() + 1);
+            int playerDamage    = max(0, player.getAttackPower() - playerReduction);
+            target->takeDamage(playerDamage);
+            cout << endl << "You stabbed the " << target->getName() << " for " << playerDamage << " damage!" << endl;
+            pause();
+
+            combatStatus(target);
+
+            int enemyReduction = rand() % (player.getDefense() + 1);
+            int enemyDamage    = max(0, target->getAttackPower() - enemyReduction);
+            player.takeDamage(enemyDamage);
+            cout << target->getName() << " hit you for " << enemyDamage << " damage!" << endl;
+            pause();
+        }
+
+        // Slash — enemy attacks first, then player hits for 1.5x damage
+        else if (action == "slash") {
+            int enemyReduction = rand() % (player.getDefense() + 1);
+            int enemyDamage    = max(0, target->getAttackPower() - enemyReduction);
+            player.takeDamage(enemyDamage);
+            cout << target->getName() << " hit you for " << enemyDamage << " damage!" << endl;
+            pause();
+
+            combatStatus(target);
+
+            int playerReduction = rand() % (target->getDefense() + 1);
+            int playerDamage    = (int)(max(0, player.getAttackPower() - playerReduction) * 1.5);
+            target->takeDamage(playerDamage);
+            cout << "You slashed the " << target->getName() << " for " << playerDamage << " damage!" << endl;
+            pause();
+        }
+
+        // Block — no player attack, incoming damage reduced based on difficulty
+        else if (action == "block") {
+            int enemyReduction = rand() % (player.getDefense() + 1);
+            int enemyDamage    = max(0, target->getAttackPower() - enemyReduction);
+            int initialDamage  = enemyDamage;
+
+            if      (difficulty == "medium") enemyDamage = (int)(enemyDamage * 0.50);
+            else if (difficulty == "hard")   enemyDamage = (int)(enemyDamage * 0.70);
+            else                             enemyDamage = (int)(enemyDamage * 0.25);
+
+            player.takeDamage(enemyDamage);
+            cout << "The enemy hit you for " << initialDamage << ", your block reduced it to " << enemyDamage << "." << endl;
+            pause();
+        }
+
+        // Use Potion — heals 40 HP, cooldown scales with difficulty
+        else if (action == "use potion") {
+            if (potionCooldown == 0) {
+                if      (difficulty == "medium") potionCooldown = 5;
+                else if (difficulty == "hard")   potionCooldown = 7;
+                else                             potionCooldown = 3;
+                player.setHealth(player.getHealth() + 40);
+                cout << "You used a potion and healed 40 HP." << endl;
+            } else {
+                cout << "You can't use your potion for another " << potionCooldown << " turns." << endl;
+            }
+            pause();
+        }
+
+        // Run — 50/50 chance to escape, failure keeps the player in the fight
+        else if (action == "run") {
+            if (rand() % 2 == 0) {
+                clearScreen();
+                printBorder();
+                printCentered("You failed to escape!");
+                printBorder();
+                pause();
+            } else {
+                clearScreen();
+                printBorder();
+                printCentered("You successfully fled!");
+                printBorder();
+                pause();
+                break;
+            }
+        }
+
+        // Tick down potion cooldown at the end of every turn
+        if (potionCooldown > 0) potionCooldown--;
+
+        // Check if enemy is dead — remove from room and end combat
+        if (target->getHealth() <= 0) {
+            currentRoom->removeEnemy(target);
+            clearScreen();
+            printBorder();
+            printCentered("You defeated the " + target->getName() + "!");
+            printBorder();
+            pause();
+        }
+    }
+
+    displayRoom();
 }
 
 
 
+// Displays the player's current inventory.
+void Game::displayInventory() {
+    clearScreen();
+    printBorder();
+    printCentered("Inventory");
+    printBorder();
+    for (const auto& item : player.getInventory()) {
+        cout << " - " << item.getName() << ": " << item.getDescription() << endl;
+    }
+    if (player.getInventory().empty()) {
+        cout << " - (empty): Your inventory is empty." << endl;
+    }
+    printDivider();
+}
+
+
+
+// Displays the player's current stats and character info.
 void Game::displayStatus() {
     clearScreen();
     printBorder();
-	printCentered("Player Status");
-	printBorder();
-	cout << " - First Name: " << player.getFirstName() << endl; // Display the player's first name
-	cout << " - Last Name: " << player.getLastName() << endl; // Display the player's last name
-	cout << " - Age: " << player.getAge() << endl; // Display the player's age
-	cout << " - Description: " << player.getDescription() << endl; // Display the player's description
-	cout << " - Health: " << player.getHealth() << endl; // Display the player's health
-	cout << " - Attack Power: " << player.getAttackPower() << endl; // Display the player's attack power
-	cout << " - Defense: " << player.getDefense() << endl; // Display the player's defense
-	printDivider();
+    printCentered("Player Status");
+    printBorder();
+    cout << " - Name: "         << player.getFirstName() << " " << player.getLastName() << endl;
+    cout << " - Age: "          << player.getAge()         << endl;
+    cout << " - Description: "  << player.getDescription() << endl;
+    cout << " - Health: "       << player.getHealth()      << endl;
+    cout << " - Attack Power: " << player.getAttackPower() << endl;
+    cout << " - Defense: "      << player.getDefense()     << endl;
+    printDivider();
 }
 
 
 
+// Displays all available commands.
 void Game::displayHelp() {
     clearScreen();
-	printBorder();
-	printCentered("Help - Available Commands");
     printBorder();
-	cout << " - help: Display this help message." << endl;
-	cout << " - search: Search the current room for items, NPCs, enemies, and exits." << endl;
-    cout << " - inventory: Display your current inventory of items." << endl;
-	cout << " - status: Display your current health, attack power, and defense." << endl;
-	cout << " - go north/south/east/west: Move in the specified direction." << endl;
-	printDivider();
+    printCentered("Help - Available Commands");
+    printBorder();
+    cout << " - help:                     Display this help message." << endl;
+    cout << " - search:                   Search the room for items, NPCs, enemies, and exits." << endl;
+    cout << " - inventory:                Display your current inventory." << endl;
+    cout << " - status:                   Display your current stats." << endl;
+    cout << " - go north/south/east/west: Move in the specified direction." << endl;
+    cout << " - take (item):              Pick up an item in the room." << endl;
+    cout << " - fight (enemy):            Initiate combat with an enemy." << endl;
+    cout << " - talk to (name):           Talk to an NPC." << endl;
+    cout << " - quit:                     Quit the game." << endl;
+    printDivider();
 }
 
 
 
-void Game::fight() {
-
-}
-
-
-
+// Win condition — player in Dragon's Lair with all required items. TODO.
 bool Game::checkWin() {
     return false;
 }
 
 
 
+// Lose condition — player health at zero. TODO.
 bool Game::checkLose() {
     return false;
 }
 
+
+
+// Finds a room by name from the master rooms vector. Returns nullptr if not found.
 Room* Game::findRoom(string name) {
     for (Room* room : rooms) {
         if (room->getName() == name) return room;
@@ -668,6 +765,11 @@ Room* Game::findRoom(string name) {
     return nullptr;
 }
 
+
+
+// Finds an NPC in the current room by name (case-insensitive) and displays their dialogue.
+// Adds the NPC name to talkedTo for quest state tracking.
+// TODO: Replace with quest-state aware dialogue system.
 void Game::talkToNPC(string name) {
     string nameLower = name;
     transform(nameLower.begin(), nameLower.end(), nameLower.begin(), ::tolower);
@@ -677,16 +779,12 @@ void Game::talkToNPC(string name) {
         transform(npcLower.begin(), npcLower.end(), npcLower.begin(), ::tolower);
 
         if (npcLower == nameLower) {
-
-			// TODO: Add more complex dialogue interactions based on previous conversations and quests
-			// Check questsComplete and talkedTo sets to determine what dialogue to show
-
             clearScreen();
             printBorder();
-			printCentered("Talking to " + npc.getName());
+            printCentered("Talking to " + npc.getName());
             printBorder();
             cout << npc.getDialogue() << endl;
-			talkedTo.insert(npc.getName());
+            talkedTo.insert(npc.getName());
             printDivider();
             return;
         }
@@ -694,44 +792,114 @@ void Game::talkToNPC(string name) {
     cout << "No NPC named " << name << " found in this room." << endl;
 }
 
+
+
+// Spawns a random enemy encounter in the given room.
+// randNum picks the encounter type. randNum2 gives a 50/50 chance of a
+// double goblin spawn on medium difficulty.
+// After spawning, all enemies in the room have stats scaled to difficulty.
 void Game::spawnEncounter(Room* room) {
-	int randNum = rand() % 5;
-    switch (randNum)
-    {
-        case 0:
-            room->addEnemy(new Enemy("Elder Goblin", "A gnarled, battle-scarred goblin with milky eyes and a chipped blade, slower than it once was but no less dangerous.", 50, 8, 5));
-            room->addEnemy(new Enemy("Young Goblin", "A small, skittish goblin with wide eyes and a crudely sharpened stick — more scared than scary.", 30, 5, 2));
-		break;
+    int randNum  = rand() % 5;
+    int randNum2 = rand() % 2;
 
-        case 1:
-            room->addEnemy(new Enemy("Skeleton Warrior", "A rattling skeleton clad in rusted armor, wielding a broken sword. It moves with an eerie, unnatural grace.", 50, 8, 3));
+    switch (randNum) {
+        case 0: // Goblins — 1 pair on easy, 50/50 double on medium, always double on hard
+            spawnGoblins(room);
+            if (difficulty == "medium" && randNum2 == 1) spawnGoblins(room);
+            if (difficulty == "hard")                    spawnGoblins(room);
             break;
 
-        case 2:
-			room->addEnemy(new Enemy("Thief", "A sneaky thief lurking in the shadows, looking for an opportunity to strike. It has a quick attack but low health.", 40, 7, 4));
+        case 1: // Skeleton — solo on easy/medium, double on hard
+            spawnSkeleton(room);
+            if (difficulty == "hard") spawnSkeleton(room);
             break;
 
-        case 3:
-            room->addEnemy(new Enemy("Orc", "A brutish orc with green skin, wielding a large axe. It has high health and attack power.", 60, 10, 5));
+        case 2: // Thieves — 3 on easy, 4 on medium, 5 on hard
+            spawnThief(room);
+            spawnThief(room);
+            spawnThief(room);
+            if (difficulty == "medium" || difficulty == "hard") spawnThief(room);
+            if (difficulty == "hard")                           spawnThief(room);
             break;
-        case 4:
-			room->addEnemy(new Enemy("Troll", "A hulking troll with mottled green skin, dripping saliva, and a foul stench. It has a powerful attack but is slow and vulnerable to fire.", 80, 12, 8));
+
+        case 3: // Orc — always solo
+            spawnOrc(room);
             break;
+
+        case 4: // Troll — always solo
+            spawnTroll(room);
+            break;
+
         default:
-        break;
+            break;
     }
-    
+
+    // Scale all enemy stats in the room based on difficulty
     for (Enemy* enemy : room->getEnemies()) {
         if (difficulty == "medium") {
             enemy->setHealth(enemy->getHealth() * 1.25);
-			enemy->setAttackPower(enemy->getAttackPower() * 1.25);
-		}
-        else if (difficulty == "hard") {
+            enemy->setAttackPower(enemy->getAttackPower() * 1.25);
+        } else if (difficulty == "hard") {
             enemy->setHealth(enemy->getHealth() * 1.5);
             enemy->setAttackPower(enemy->getAttackPower() * 1.5);
             enemy->setDefense(enemy->getDefense() + 3);
         }
-	}
+    }
 }
 
+
+
+// --- Enemy Spawn Helpers ---
+// Each function creates and adds one instance of that enemy type to the room.
+
+void Game::spawnGoblins(Room* room) {
+    room->addEnemy(new Enemy("Elder Goblin", "A gnarled, battle-scarred goblin with milky eyes and a chipped blade, slower than it once was but no less dangerous.", 50, 50, 8, 5));
+    room->addEnemy(new Enemy("Young Goblin", "A small, skittish goblin with wide eyes and a crudely sharpened stick — more scared than scary.", 30, 30, 5, 2));
+}
+
+void Game::spawnSkeleton(Room* room) {
+    room->addEnemy(new Enemy("Skeleton Warrior", "A rattling skeleton clad in rusted armor, wielding a broken sword. It moves with an eerie, unnatural grace.", 50, 50, 8, 3));
+}
+
+void Game::spawnThief(Room* room) {
+    room->addEnemy(new Enemy("Thief", "A sneaky thief lurking in the shadows, looking for an opportunity to strike. It has a quick attack but low health.", 40, 40, 7, 4));
+}
+
+void Game::spawnOrc(Room* room) {
+    room->addEnemy(new Enemy("Orc", "A brutish orc with green skin, wielding a large axe. It has high health and attack power.", 60, 60, 10, 5));
+}
+
+void Game::spawnTroll(Room* room) {
+    room->addEnemy(new Enemy("Troll", "A hulking troll with mottled green skin, dripping saliva, and a foul stench. It has a powerful attack but is slow and vulnerable to fire.", 80, 80, 12, 8));
+}
+
+
+
+// --- Helpers ---
+
+// Prompts for yes/no input and loops until a valid response is given.
+bool Game::getYesNo() {
+    string input;
+    while (true) {
+        getline(cin, input);
+        transform(input.begin(), input.end(), input.begin(), ::tolower);
+        if (input == "yes") return true;
+        if (input == "no")  return false;
+        cout << "Please enter yes or no: ";
+    }
+}
+
+// Displays the current combat state — player HP vs enemy HP and available actions.
+// Called at the start of each turn and between attacks to keep HP current.
+void Game::combatStatus(Enemy* target) {
+    clearScreen();
+    printBorder();
+    printCentered("Combat — " + target->getName());
+    printBorder();
+    printTwoSided("You", target->getName());
+    printTwoSided(to_string(player.getHealth()) + " HP", to_string(target->getHealth()) + " HP");
+    printDivider();
+    printCentered("Stab | Slash | Block | Use Potion | Run");
+    printDivider();
+}
 

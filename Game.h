@@ -31,7 +31,7 @@ public:
 	void displayRoom();                     // Display the current room's name, description, items, NPCs, enemies, and available exits to the player
 	void move(std::string direction);       // Move the player to a different room based on the input direction (north, south, east, west) and update the current room accordingly
 	void search();                          // Allow the player to search the current room for items, NPCs, and enemies, and display the results of the search to the player
-	void fight();                           // Handle combat interactions between the player and enemies in the current room, including calculating damage, updating health, and determining the outcome of the fight
+	void fight(std::string input);                           // Handle combat interactions between the player and enemies in the current room, including calculating damage, updating health, and determining the outcome of the fight
 	bool checkWin();						// Check if the player has met the win condition for the game, such as defeating the dragon in the final boss room, and return true if the win condition is met, otherwise return false
 	bool checkLose();						// Check if the player has met the lose condition for the game, such as having their health reduced to zero or being defeated by an enemy, and return true if the lose condition is met, otherwise return false
 	void displayInventory();				// Display the player's current inventory, including the items they have collected and their descriptions, to the player
@@ -39,9 +39,15 @@ public:
 	void processInput(std::string input);	// Process the player's input command and execute the corresponding actions in the game, such as moving, searching, fighting, or interacting with NPCs based on the input provided
 	void displayHelp();						// Display a list of available commands and their descriptions to the player to assist them in navigating the game and understanding how to interact with the game world
 	bool riskCheck();						// Perform a risk check when the player chooses to search a room with enemies, determining whether the player successfully avoids the enemies or takes damage based on a random chance and the player's attributes, and return true if the player successfully avoids the enemies, otherwise return false if the player takes damage
-	void take();							// Handle the player's action to take an item from the current room, allowing them to add the item to their inventory and remove it from the room, while also checking for any conditions or requirements for taking the item, such as needing a specific item or having completed a certain quest before being able to take it
+	void take(std::string itemName);							// Handle the player's action to take an item from the current room, allowing them to add the item to their inventory and remove it from the room, while also checking for any conditions or requirements for taking the item, such as needing a specific item or having completed a certain quest before being able to take it
 	bool getYesNo();						// Get a yes or no response from the player, validating the input and returning true for yes and false for no, to be used in various decision points in the game where the player needs to make a choice or confirm an action
 	Room* findRoom(std::string name);				// Find a room by its name from the list of rooms in the game world and return a pointer to the Room object if found, otherwise return nullptr if no room with the specified name exists
 	void talkToNPC(std::string name);				// Handle the player's action to talk to an NPC in the current room, allowing them to engage in dialogue with the NPC and receive information, quests, or rewards based on their interactions and the NPC's role in the game world
 	void spawnEncounter(Room* room);				// Spawn a random encounter in the specified room, which may include enemies, NPCs, or events that the player can interact with, adding an element of unpredictability and challenge to the game as the player explores different rooms and encounters various situations
+    void spawnGoblins(Room* room);
+    void spawnSkeleton(Room* room);
+    void spawnThief(Room* room);
+    void spawnTroll(Room* room);
+    void spawnOrc(Room* room);
+    void combatStatus(Enemy*);
 };

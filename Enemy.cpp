@@ -3,9 +3,10 @@
 using namespace std;
 
 // Initializes enemy with name, description, health, and attack power
-Enemy::Enemy(std::string name, std::string description, int health, int attackPower, int defense) {
+Enemy::Enemy(std::string name, std::string description, int health, int maxHealth, int attackPower, int defense) {
     this->name = name;
     this->description = description;
+    this->maxHealth = maxHealth;
     this->health = health;
     this->attackPower = attackPower;
 	this->defense = defense;
@@ -26,6 +27,11 @@ string Enemy::getDescription() {
 // Returns the health points of the enemy
 int Enemy::getHealth() {
     return health;
+}
+
+// Returns the max health points of the enemy
+int Enemy::getMaxHealth() {
+    return maxHealth;
 }
 
 // Returns the attack power of the enemy
@@ -54,6 +60,10 @@ void Enemy::setDescription(string description) {
 
 void Enemy::setHealth(int health) {
     this->health = health;
+}
+
+void Enemy::setMaxHealth(int maxHealth) {
+    this->maxHealth = maxHealth;
 }
 
 void Enemy::setAttackPower(int attackPower) {

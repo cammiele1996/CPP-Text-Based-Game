@@ -1,6 +1,6 @@
 # Dragon Slayer — C++ Text-Based RPG (WIP)
-I am a Computer Sciene Major, currently in school. This is a fun project to solidfy my knowledge of C++
-If you stumble across this, feel free to read my code and provide feedback.
+
+I'm a Computer Science major in an accelerated BS program, and this is a personal project I'm building alongside my coursework to solidify my C++ skills. If you stumble across this, feel free to read the code and leave feedback.
 
 A text-based adventure RPG built in C++ using object-oriented design principles.
 
@@ -15,11 +15,11 @@ You wake up in a tavern with no memory. You were hired to slay a dragon — and 
 ## Features
 
 - **Full OOP architecture** — Player, Room, Enemy, NPC, Item, and Game classes
+- **Turn-based combat** — Stab, slash, block, use potion, or run each round
 - **Dynamic enemy spawning** — Enemy types and locations are randomized each playthrough
-- **Difficulty scaling** — Easy, Medium, and Hard modes affect enemy count and stats
+- **Difficulty scaling** — Easy, Medium, and Hard affect enemy count, stats, and potion cooldown
 - **Exploration system** — Visited room tracking, unknown exits, and a secret tunnel
-- **Quest chain** — NPC dialogue and item progression drive the story forward
-- **Risk system** — Searching or taking items in rooms with enemies triggers a risk check
+- **Risk system** — Searching or taking items with enemies present triggers a risk check
 - **Character creation** — Custom name, age, and description at the start of each run
 
 ---
@@ -40,6 +40,8 @@ You wake up in a tavern with no memory. You were hired to slay a dragon — and 
 [Church] - [Windmill] - [Road Out of Town]
 ```
 
+> There is a secret tunnel connecting the Forest and the Dungeon. Find it yourself.
+
 ---
 
 ## Enemies
@@ -53,7 +55,21 @@ You wake up in a tavern with no memory. You were hired to slay a dragon — and 
 | Orc | 60 | 10 | 5 |
 | Troll | 80 | 12 | 8 |
 
-*Stats scale with difficulty.*
+*Stats scale with difficulty. Spawn counts also increase on harder difficulties.*
+
+---
+
+## Combat
+
+Each round the player chooses one of five actions:
+
+| Action | Description |
+|---|---|
+| `stab` | You attack first, then the enemy counterattacks |
+| `slash` | Enemy attacks first, you hit for 1.5x damage |
+| `block` | Reduces incoming damage — 75% on easy, 50% on medium, 30% on hard |
+| `use potion` | Heals 40 HP on a cooldown (3 / 5 / 7 turns by difficulty) |
+| `run` | 50/50 chance to escape. Failure keeps you in the fight |
 
 ---
 
@@ -63,9 +79,9 @@ You wake up in a tavern with no memory. You were hired to slay a dragon — and 
 |---|---|
 | `go north/south/east/west` | Move in a direction |
 | `search` | Search the current room |
-| `take` | Pick up an item |
-| `talk to [name]` | Talk to an NPC |
-| `fight` | Engage enemies in combat |
+| `take (item)` | Pick up an item |
+| `talk to (name)` | Talk to an NPC |
+| `fight (enemy)` | Engage a specific enemy in combat |
 | `inventory` | View your inventory |
 | `status` | View your stats |
 | `help` | List all commands |
@@ -100,9 +116,11 @@ Work in progress. Currently implemented:
 - [x] NPC dialogue system (basic)
 - [x] Secret tunnel with death trap
 - [x] Risk check system
-- [ ] Turn-based combat
+- [x] Turn-based combat (stab, slash, block, potion, run)
 - [ ] Quest-state aware NPC dialogue
 - [ ] Win and lose conditions
+- [ ] Enemy move pools and status effects
+- [ ] Checkpoints and save/load system
 - [ ] ImGui GUI with Blender room backgrounds
 
 ---
@@ -110,8 +128,8 @@ Work in progress. Currently implemented:
 ## Built With
 
 - C++
-- Visual Studio 2022
+- Visual Studio 2022 / Xcode
 
 ---
 
-*First year CS project — built for learning, designed to be fun.*
+*Personal project — built for learning, designed to be fun.*

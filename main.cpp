@@ -1,9 +1,26 @@
 #include "Game.h"
-#include <signal.h>
+#include "Tests.h"
+
+// Flip to true to launch the Test Tavern instead of the main game loop.
+// Set to false before shipping or pushing a playable build.
+#define RUN_TESTS true
+
+// Signal handling for Mac/Linux — suppresses terminal resize interrupts.
+// Uncomment when running on Mac to prevent the input loop from breaking on fullscreen.
+// #include <signal.h>
 
 int main() {
-	Game game;      // Create an instance of the Game class to manage the game logic and state
-    signal(SIGWINCH, SIG_IGN);
-	game.run();     // Call the run method to start the main game loop and begin the adventure
-	return 0;       // Return 0 to indicate that the program has ended successfully
+    Game  game;
+    Tests tests;
+
+    if (RUN_TESTS) {
+        tests.runTests(game);
+        return 0;
+    }
+
+    // Uncomment on Mac:
+    // signal(SIGWINCH, SIG_IGN);
+
+    game.run();
+    return 0;
 }

@@ -11,6 +11,9 @@ using namespace std;
 // Initializes the entire game world — rooms, connections, items, NPCs, and enemy spawns.
 // Called after difficulty is set so spawn counts and stat scaling work correctly.
 void Game::setup() {
+	// Clear any existing game state in case of multiple runs (testing purposes).
+    rooms.clear();
+    visitedRooms.clear();
 
     srand(static_cast<unsigned int>(time(nullptr)));
 
@@ -86,9 +89,9 @@ void Game::setup() {
 
     // --- Place Items ---
     // isRequired (3rd param) flags items needed to face the dragon.
-    Item helmet("Helmet",                "A sturdy helmet that offers protection against head injuries.", true);
-    Item shield("Anti-Dragonfire Shield","A shield designed to protect against dragon fire.",             true);
-    Item ore   ("Eldrium Ore",           "A rare ore that is said to be able to harm dragons.",           false);
+    Item helmet("Helmet",                "A sturdy helmet that offers protection against head injuries.", true, false);
+    Item shield("Anti-Dragonfire Shield","A shield designed to protect against dragon fire.",             true, false);
+    Item ore   ("Eldrium Ore",           "A rare ore that is said to be able to harm dragons.",           false, true);
 
     forest->addItem(helmet);
     dungeon->addItem(shield);
@@ -682,6 +685,16 @@ void Game::fight(string input) {
             printBorder();
             pause();
         }
+
+        if (player.getHealth() <=0) {
+            clearScreen();
+            printBorder();
+            printCentered("You have been defeated by the " + target->getName() + "...");
+            printBorder();
+            pause();
+            gameOver = true;
+			//exit(0); // Temporary exit to avoid running end game checks and displaying the win message after death. TODO: Refactor end game handling so this isn't necessary.
+		}
     }
 
     displayRoom();
@@ -837,11 +850,11 @@ void Game::spawnEncounter(Room* room) {
     // Scale all enemy stats in the room based on difficulty
     for (Enemy* enemy : room->getEnemies()) {
         if (difficulty == "medium") {
-            enemy->setHealth(enemy->getHealth() * 1.25);
-            enemy->setAttackPower(enemy->getAttackPower() * 1.25);
+            enemy->setHealth(static_cast<int>(enemy->getHealth() * 1.25));
+            enemy->setAttackPower(static_cast<int>(enemy->getAttackPower() * 1.25));
         } else if (difficulty == "hard") {
-            enemy->setHealth(enemy->getHealth() * 1.5);
-            enemy->setAttackPower(enemy->getAttackPower() * 1.5);
+            enemy->setHealth(static_cast<int>(enemy->getHealth() * 1.5));
+            enemy->setAttackPower(static_cast<int>(enemy->getAttackPower() * 1.5));
             enemy->setDefense(enemy->getDefense() + 3);
         }
     }
@@ -894,7 +907,7 @@ bool Game::getYesNo() {
 void Game::combatStatus(Enemy* target) {
     clearScreen();
     printBorder();
-    printCentered("Combat — " + target->getName());
+    printCentered("Combat  :  " + target->getName());
     printBorder();
     printTwoSided("You", target->getName());
     printTwoSided(to_string(player.getHealth()) + " HP", to_string(target->getHealth()) + " HP");

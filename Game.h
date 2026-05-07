@@ -1,53 +1,67 @@
 #pragma once
 #include <vector>
+#include <string>
+#include <set>
 #include "Room.h"
 #include "Player.h"
 #include "Item.h"
 #include "Enemy.h"
-#include <string>
-#include <set>
 
-// This class represents the main game logic and state management for the text - based adventure game.
-// The Game class manages the player's interactions with the game world, including moving between rooms, 
-// searching for items, fighting enemies, and tracking the player's progress towards winning or losing the game. 
-// It also handles user input and displays relevant information to the player based on their actions and the current state of the game world.
+// Core game class — manages the game loop, world state, player input, and combat.
+// All game logic runs through here. setup() builds the world; run() drives the main loop.
 
+class Tests; // Forward declaration — Tests is a friend class for dev testing
 
 class Game {
 private:
-	Player player;                          // The player character, represented by an instance of the Player class, which contains attributes such as health, attack power, defense, and inventory.
-	Room* currentRoom = nullptr;            // A pointer to the current room the player is in, represented by an instance of the Room class, which contains information about the room's name, description, items, enemies, and connections to other rooms.
-	bool gameOver = false;                  // A boolean flag indicating whether the game has ended, either by winning or losing. This flag is used to control the main game loop and determine when to display end game messages and exit the game.
-	std::string difficulty;					// A string variable to store the selected difficulty level of the game, which may affect various aspects of the game such as enemy strength, item availability, and overall challenge for the player.
-	std::vector<Enemy*> enemies;            // A vector of pointers to Enemy objects representing the enemies present in the game world. This allows the game to manage and interact with multiple enemies as the player explores different rooms and encounters various challenges.
-	std::vector<Room*> rooms;               // A vector of pointers to Room objects representing all the rooms in the game world. This allows the game to manage and navigate between different rooms as the player moves through the game world.
-	std::set<std::string> talkedTo;         // A set of strings to track which NPCs the player has talked to. This allows the game to manage dialogue interactions and ensure that the player receives appropriate responses from NPCs based on their previous interactions.
-    std::set<std::string> questsComplete;   // A set of strings to track which quests the player has completed. This allows the game to manage quest progression and ensure that the player receives appropriate rewards and guidance based on their completed quests.
-	std::set<std::string> visitedRooms;     // A set of strings to track which rooms the player has visited. This allows the game to manage room exploration and ensure that the player receives appropriate information and interactions based on their previous visits.
+    Player player;
+    Room* currentRoom = nullptr;
+    bool gameOver = false;
+    std::string difficulty;              // "easy", "medium", or "hard" — set before setup()
+
+    std::vector<Enemy*> enemies;         // Global enemy list (currently unused — rooms own enemies)
+    std::vector<Room*> rooms;            // Master room list — used by findRoom()
+    std::set<std::string> talkedTo;      // Tracks which NPCs the player has spoken to
+    std::set<std::string> questsComplete;// Tracks completed quests for quest-state dialogue (TODO)
+    std::set<std::string> visitedRooms;  // Tracks visited rooms — controls unknown exit display
 
 public:
-    void run();                             // Call the main game loop
-	void setup();                           // Set up the game world, including creating rooms, items, NPCs, and initializing the player's starting conditions
-	void displayRoom();                     // Display the current room's name, description, items, NPCs, enemies, and available exits to the player
-	void move(std::string direction);       // Move the player to a different room based on the input direction (north, south, east, west) and update the current room accordingly
-	void search();                          // Allow the player to search the current room for items, NPCs, and enemies, and display the results of the search to the player
-	void fight(std::string input);                           // Handle combat interactions between the player and enemies in the current room, including calculating damage, updating health, and determining the outcome of the fight
-	bool checkWin();						// Check if the player has met the win condition for the game, such as defeating the dragon in the final boss room, and return true if the win condition is met, otherwise return false
-	bool checkLose();						// Check if the player has met the lose condition for the game, such as having their health reduced to zero or being defeated by an enemy, and return true if the lose condition is met, otherwise return false
-	void displayInventory();				// Display the player's current inventory, including the items they have collected and their descriptions, to the player
-	void displayStatus();					// Display the player's current status, including their health, attack power, defense, and any active quests or completed quests, to the player
-	void processInput(std::string input);	// Process the player's input command and execute the corresponding actions in the game, such as moving, searching, fighting, or interacting with NPCs based on the input provided
-	void displayHelp();						// Display a list of available commands and their descriptions to the player to assist them in navigating the game and understanding how to interact with the game world
-	bool riskCheck();						// Perform a risk check when the player chooses to search a room with enemies, determining whether the player successfully avoids the enemies or takes damage based on a random chance and the player's attributes, and return true if the player successfully avoids the enemies, otherwise return false if the player takes damage
-	void take(std::string itemName);							// Handle the player's action to take an item from the current room, allowing them to add the item to their inventory and remove it from the room, while also checking for any conditions or requirements for taking the item, such as needing a specific item or having completed a certain quest before being able to take it
-	bool getYesNo();						// Get a yes or no response from the player, validating the input and returning true for yes and false for no, to be used in various decision points in the game where the player needs to make a choice or confirm an action
-	Room* findRoom(std::string name);				// Find a room by its name from the list of rooms in the game world and return a pointer to the Room object if found, otherwise return nullptr if no room with the specified name exists
-	void talkToNPC(std::string name);				// Handle the player's action to talk to an NPC in the current room, allowing them to engage in dialogue with the NPC and receive information, quests, or rewards based on their interactions and the NPC's role in the game world
-	void spawnEncounter(Room* room);				// Spawn a random encounter in the specified room, which may include enemies, NPCs, or events that the player can interact with, adding an element of unpredictability and challenge to the game as the player explores different rooms and encounters various situations
-    void spawnGoblins(Room* room);
+
+    // --- Core Loop ---
+    void run();             // Entry point — character creation, difficulty, then game loop
+    void setup();           // Builds rooms, places items/NPCs/enemies. Call after difficulty is set.
+    void processInput(std::string input); // Routes player commands to the correct function
+
+    // --- Display ---
+    void displayRoom();     // Shows current room name, description, and prompt
+    void displayInventory();
+    void displayStatus();
+    void displayHelp();
+    void combatStatus(Enemy* target); // Shows HP comparison and action menu during combat
+
+    // --- Actions ---
+    void move(std::string direction);   // Handles movement + special cases (tunnel, road)
+    void search();                      // Reveals items, NPCs, enemies, and exits
+    void take(std::string itemName);    // Picks up a named item if present
+    void fight(std::string input);      // Initiates turn-based combat with a named enemy
+    void talkToNPC(std::string name);   // Displays NPC dialogue and logs to talkedTo
+
+    // --- Helpers ---
+    bool riskCheck();                   // 80/20 chance to slip past enemies — death on failure
+    bool getYesNo();                    // Loops until player enters yes or no
+    Room* findRoom(std::string name);   // Returns a room pointer by name, or nullptr
+
+    // --- Win / Lose ---
+    bool checkWin();   // TODO: player in Dragon's Lair with all required items
+    bool checkLose();  // TODO: player health <= 0
+
+    // --- Enemy Spawning ---
+    void spawnEncounter(Room* room); // Rolls a random encounter type and places it in the room
+    void spawnGoblins(Room* room);   // Elder + Young Goblin pair
     void spawnSkeleton(Room* room);
     void spawnThief(Room* room);
     void spawnTroll(Room* room);
     void spawnOrc(Room* room);
-    void combatStatus(Enemy*);
+
+    friend class Tests; // Grants Tests direct access to private members for dev testing
 };

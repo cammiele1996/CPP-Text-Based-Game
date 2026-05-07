@@ -1,28 +1,31 @@
 #pragma once
 #include <string>
 
-
-// This class represents an item in the game world
-// Some items are keys that are required the face the final boss
-// Some items modify player stats
-
+// Represents an item in the game world.
+// Items can be required for the final boss fight, required for a quest, or neither (decoys/flavor).
 
 class Item {
-    private:
-        std::string name;        // Display name of the item
-        std::string description; // Description of the item
-        bool isRequired;         // Is item required for final boss?
+private:
+    std::string name;
+    std::string description;
+    bool isRequired;         // Must have this item to face the dragon
+    bool isRequiredForQuest; // Required to progress a quest chain
 
-    public:
+public:
 
-		// Default constructor
-		Item();
+    // Default constructor — creates an empty placeholder item
+    Item();
 
-        // Constructor
-        Item(std::string name, std::string description, bool isRequired);
-        
-        // Getters
-        std::string getName() const;          // Returns the item name
-        std::string getDescription() const;   // Returns the item description
-        bool getIsRequired() const;           // Returns true if the item is required for the final boss
+    // Constructor
+    Item(std::string name, std::string description, bool isRequired, bool isRequiredForQuest);
+
+    // Getters
+    std::string getName() const;
+    std::string getDescription() const;
+    bool getIsRequired() const;          // True if needed for the final boss
+    bool getIsRequiredForQuest() const;  // True if needed for a quest
+
+    // Setters
+    void setIsRequiredForQuest(bool isRequiredForQuest);
+    // void setIsRequired(bool isRequired); // Uncomment if boss requirements need to change at runtime
 };

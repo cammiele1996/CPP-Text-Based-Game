@@ -2,74 +2,35 @@
 
 using namespace std;
 
-// Initializes enemy with name, description, health, and attack power
+// Initializes the enemy. health and maxHealth should match on creation.
 Enemy::Enemy(std::string name, std::string description, int health, int maxHealth, int attackPower, int defense) {
     this->name = name;
     this->description = description;
-    this->maxHealth = maxHealth;
     this->health = health;
+    this->maxHealth = maxHealth;
     this->attackPower = attackPower;
-	this->defense = defense;
+    this->defense = defense;
 }
 
-// Getters
+// --- Getters ---
 
-// Returns the name of the enemy
-string Enemy::getName() {
-    return name;
-}
+string Enemy::getName() { return name; }
+string Enemy::getDescription() { return description; }
+int    Enemy::getHealth() { return health; }
+int    Enemy::getMaxHealth() { return maxHealth; }
+int    Enemy::getAttackPower() { return attackPower; }
+int    Enemy::getDefense() { return defense; }
 
-// Returns the description of the enemy
-string Enemy::getDescription() {
-    return description;
-}
-
-// Returns the health points of the enemy
-int Enemy::getHealth() {
-    return health;
-}
-
-// Returns the max health points of the enemy
-int Enemy::getMaxHealth() {
-    return maxHealth;
-}
-
-// Returns the attack power of the enemy
-int Enemy::getAttackPower() {
-    return attackPower;
-}
-
-// Returns the defense points of the enemy
-int Enemy::getDefense() {
-    return defense;
-}
-
-// Reduces the enemy's health by the damage amount
+// Subtracts damage from current health. Health can go negative — caller checks for death.
 void Enemy::takeDamage(int damage) {
     health -= damage;
 }
 
-// Setters
-void Enemy::setName(string name) {
-    this->name = name;
-}
+// --- Setters ---
 
-void Enemy::setDescription(string description) {
-    this->description = description;
-}
-
-void Enemy::setHealth(int health) {
-    this->health = health;
-}
-
-void Enemy::setMaxHealth(int maxHealth) {
-    this->maxHealth = maxHealth;
-}
-
-void Enemy::setAttackPower(int attackPower) {
-    this->attackPower = attackPower;
-}
-
-void Enemy::setDefense(int defense) {
-    this->defense = defense;
-}
+void Enemy::setName(string name) { this->name = name; }
+void Enemy::setDescription(string description) { this->description = description; }
+void Enemy::setHealth(int health) { this->health = health; }
+void Enemy::setMaxHealth(int maxHealth) { this->maxHealth = maxHealth; }
+void Enemy::setAttackPower(int attackPower) { this->attackPower = attackPower; }
+void Enemy::setDefense(int defense) { this->defense = defense; }

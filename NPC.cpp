@@ -2,26 +2,14 @@
 
 using namespace std;
 
-// Constructor
 NPC::NPC(std::string name, std::string description, std::string dialogue) {
     this->name = name;
     this->description = description;
     this->dialogue = dialogue;
 }
 
-// Getters
+// --- Getters ---
 
-// Returns the name of the NPC
-std::string NPC::getName() const {
-    return name;
-}
-
-// Returns the description of the NPC
-std::string NPC::getDescription() const {
-    return description;
-}
-
-// Returns the dialogue text of the NPC
-std::string NPC::getDialogue() const {
-    return dialogue;
-}
+std::string NPC::getName() const { return name; }
+std::string NPC::getDescription() const { return description; }
+std::string NPC::getDialogue() const { return dialogue; }

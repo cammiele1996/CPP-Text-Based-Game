@@ -2,31 +2,31 @@
 
 using namespace std;
 
-// Default constructor
+// Default constructor — empty item, not required for anything
 Item::Item() {
     this->name = "";
     this->description = "";
     this->isRequired = false;
+    this->isRequiredForQuest = false;
 }
 
-// Initializes item with name, description, and required status
-Item::Item(string name, string description, bool isRequired) {
+// Full constructor
+Item::Item(string name, string description, bool isRequired, bool isRequiredForQuest) {
     this->name = name;
     this->description = description;
     this->isRequired = isRequired;
+    this->isRequiredForQuest = isRequiredForQuest;
 }
 
-// Returns the item name
-string Item::getName() const {
-    return name;
-}
+// --- Getters ---
 
-// Returns the item description
-string Item::getDescription() const {
-    return description;
-}
+string Item::getName() const { return name; }
+string Item::getDescription() const { return description; }
+bool   Item::getIsRequired() const { return isRequired; }
+bool   Item::getIsRequiredForQuest() const { return isRequiredForQuest; }
 
-// Returns true if the item is required for the final boss
-bool Item::getIsRequired() const {
-    return isRequired;
+// --- Setters ---
+
+void Item::setIsRequiredForQuest(bool isRequiredForQuest) {
+    this->isRequiredForQuest = isRequiredForQuest;
 }

@@ -1,24 +1,22 @@
 #pragma once
 #include <string>
 
-// This class represents a non-player character (NPC) in the game
-// NPCs can interact with players and provide information or quests
-// NPCs can also provide items or assistance
+// Represents a non-player character in the game.
+// NPCs have static dialogue for now — quest-state aware dialogue is planned.
 
-class NPC { 
-    private:
-        std::string name;           // The name of the NPC
-        std::string description;    // A description of the NPC
-        std::string dialogue;       // Dialogue text for the NPC
+class NPC {
+private:
+    std::string name;
+    std::string description; // Shown when the player searches the room
+    std::string dialogue;    // Shown when the player talks to the NPC
 
-    public:
-        
-        // Constructor
-        NPC(std::string name, std::string description, std::string dialogue);
+public:
 
-        // Getters
-        std::string getName() const;            // Retrieve the name of the NPC
-        std::string getDescription() const;     // Retrieve the description of the NPC
-        std::string getDialogue() const;        // Retrieve the dialogue text of the NPC
+    // Constructor
+    NPC(std::string name, std::string description, std::string dialogue);
 
+    // Getters
+    std::string getName() const;
+    std::string getDescription() const;
+    std::string getDialogue() const;
 };

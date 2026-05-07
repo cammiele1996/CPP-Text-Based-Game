@@ -1,8 +1,6 @@
 # Dragon Slayer — C++ Text-Based RPG (WIP)
 
-I'm a Computer Science major in an accelerated BS program, and this is a personal project I'm building alongside my coursework to solidify my C++ skills. If you stumble across this, feel free to read the code and leave feedback.
-
-A text-based adventure RPG built in C++ using object-oriented design principles.
+I'm a Computer Science major in an accelerated BS program, building this alongside coursework to solidify my C++ skills. If you stumble across this, feel free to read the code and leave feedback.
 
 ---
 
@@ -21,6 +19,7 @@ You wake up in a tavern with no memory. You were hired to slay a dragon — and 
 - **Exploration system** — Visited room tracking, unknown exits, and a secret tunnel
 - **Risk system** — Searching or taking items with enemies present triggers a risk check
 - **Character creation** — Custom name, age, and description at the start of each run
+- **Dev test suite** — Isolated `Tests` class with a Test Tavern menu for combat and room setup testing
 
 ---
 
@@ -46,7 +45,7 @@ You wake up in a tavern with no memory. You were hired to slay a dragon — and 
 
 ## Enemies
 
-| Enemy | Health | Attack | Defense |
+| Enemy | HP | Attack | Defense |
 |---|---|---|---|
 | Young Goblin | 30 | 5 | 2 |
 | Elder Goblin | 50 | 8 | 5 |
@@ -55,7 +54,7 @@ You wake up in a tavern with no memory. You were hired to slay a dragon — and 
 | Orc | 60 | 10 | 5 |
 | Troll | 80 | 12 | 8 |
 
-*Stats scale with difficulty. Spawn counts also increase on harder difficulties.*
+*Base stats. HP and attack scale ×1.25 on medium, ×1.5 on hard. Defense +3 on hard. Spawn counts also increase.*
 
 ---
 
@@ -66,7 +65,7 @@ Each round the player chooses one of five actions:
 | Action | Description |
 |---|---|
 | `stab` | You attack first, then the enemy counterattacks |
-| `slash` | Enemy attacks first, you hit for 1.5x damage |
+| `slash` | Enemy attacks first, you hit for 1.5× damage |
 | `block` | Reduces incoming damage — 75% on easy, 50% on medium, 30% on hard |
 | `use potion` | Heals 40 HP on a cooldown (3 / 5 / 7 turns by difficulty) |
 | `run` | 50/50 chance to escape. Failure keeps you in the fight |
@@ -92,21 +91,20 @@ Each round the player chooses one of five actions:
 ## File Structure
 
 ```
-main.cpp       — Entry point
-Game.h/.cpp    — Core game loop, input processing, and world management
+main.cpp       — Entry point + RUN_TESTS toggle
+Game.h/.cpp    — Core game loop, input, world management, and combat
 Player.h/.cpp  — Player stats, inventory, and character data
-Enemy.h/.cpp   — Enemy attributes and damage handling
-Item.h/.cpp    — Item definitions
+Enemy.h/.cpp   — Enemy attributes, damage handling, and stat scaling
+Item.h/.cpp    — Item definitions (boss-required and quest-required flags)
 NPC.h/.cpp     — NPC dialogue and interaction
 Room.h/.cpp    — Room connections, contents, and state
-Utils.h        — Display utilities (borders, wrapping, screen clear)
+Utils.h        — Display utilities (borders, wrapping, screen clear, two-sided layout)
+Tests.h/.cpp   — Dev test suite (Test Tavern — combat and room setup tests)
 ```
 
 ---
 
 ## Status
-
-Work in progress. Currently implemented:
 
 - [x] Full map and room connections
 - [x] Movement and visited room tracking
@@ -117,10 +115,12 @@ Work in progress. Currently implemented:
 - [x] Secret tunnel with death trap
 - [x] Risk check system
 - [x] Turn-based combat (stab, slash, block, potion, run)
+- [x] Dev test suite (Test Tavern)
 - [ ] Quest-state aware NPC dialogue
 - [ ] Win and lose conditions
 - [ ] Enemy move pools and status effects
 - [ ] Checkpoints and save/load system
+- [ ] Training Arena game mode
 - [ ] ImGui GUI with Blender room backgrounds
 
 ---

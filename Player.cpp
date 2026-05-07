@@ -2,19 +2,20 @@
 
 using namespace std;
 
-// Default Constructor
+// Default constructor — base stats, empty character info
 Player::Player() {
     this->firstName = "";
-	this->lastName = "";
-	this->age = "";
-	this->description = "";
+    this->lastName = "";
+    this->age = "";
+    this->description = "";
     this->health = 100;
     this->attackPower = 10;
-    this->defense =5;
+    this->defense = 5;
 }
 
 // Parameterized constructor
-Player::Player(string firstName, string lastName, string age, string description, int health, int attackPower, int defense) {
+Player::Player(string firstName, string lastName, string age, string description,
+    int health, int attackPower, int defense) {
     this->firstName = firstName;
     this->lastName = lastName;
     this->age = age;
@@ -24,96 +25,45 @@ Player::Player(string firstName, string lastName, string age, string description
     this->defense = defense;
 }
 
-// Getters
+// --- Getters ---
 
-// Returns the players first name
-string Player::getFirstName() {
-    return firstName;
-}
+string Player::getFirstName() { return firstName; }
+string Player::getLastName() { return lastName; }
+string Player::getAge() { return age; }
+string Player::getDescription() { return description; }
+int    Player::getHealth() { return health; }
+int    Player::getAttackPower() { return attackPower; }
+int    Player::getDefense() { return defense; }
 
-string Player::getLastName() {
-    return lastName;
-}
+// --- Setters ---
 
-string Player::getAge() {
-    return age;
-}
+void Player::setFirstName(string name) { this->firstName = name; }
+void Player::setLastName(string name) { this->lastName = name; }
+void Player::setAge(string age) { this->age = age; }
+void Player::setDescription(string description) { this->description = description; }
+void Player::setHealth(int health) { this->health = health; }
+void Player::setAttackPower(int attackPower) { this->attackPower = attackPower; }
+void Player::setDefense(int defense) { this->defense = defense; }
 
-string Player::getDescription() {
-    return description;
-}
+// --- Inventory ---
 
-// Returns the players health
-int Player::getHealth() {
-    return health;
-}
+std::vector<Item> Player::getInventory() { return inventory; }
 
-// Returns the players attack power
-int Player::getAttackPower() {
-    return attackPower;
-}   
-
-// Returns the players defense
-int Player::getDefense() {
-    return defense;
-}
-
-// Setters
-
-// Sets the players name
-void Player::setFirstName(string name) {
-    this->firstName = name;
-}
-
-void Player::setLastName(string name) {
-    this->lastName = name;
-}
-
-void Player::setAge(string age) {
-    this->age = age;
-}
-
-void Player::setDescription(string description) {
-    this->description = description;
-}
-
-// Sets the players health
-void Player::setHealth(int health) {
-    this->health = health;
-}
-
-// Sets the players attack power
-void Player::setAttackPower(int attackPower) {
-    this->attackPower = attackPower;
-}
-
-// Sets the players defense
-void Player::setDefense(int defense) {
-    this->defense = defense;
-}
-
-// Returns the players inventory
-std::vector<Item> Player::getInventory() {
-    return inventory;
-}
-
-// Adds an item to the players inventory
 void Player::addItem(Item item) {
     inventory.push_back(item);
 }
 
-void Player::takeDamage(int damage) {
-    health -= damage;
-}
-
-// Checks if the players inventory contains an item
+// Returns true if an item with the given name exists in the inventory
 bool Player::hasItem(string itemName) {
     for (const auto& item : inventory) {
-        if (item.getName() == itemName) {
-            return true;
-        }
+        if (item.getName() == itemName) return true;
     }
     return false;
 }
 
+// --- Combat ---
 
+// Subtracts damage from current health. Health can go negative — caller checks for death.
+void Player::takeDamage(int damage) {
+    health -= damage;
+}

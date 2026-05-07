@@ -127,6 +127,32 @@ Tests.h/.cpp   — Dev test suite (Test Tavern — combat and room setup tests)
 
 ## Roadmap
 
+### ✅ Phase 0 — Foundation *(complete)*
+- [x] Project architecture — Player, Room, Enemy, NPC, Item, Game classes
+- [x] Full world map with all room connections
+- [x] Movement system with visited room tracking and unknown exits
+- [x] Character creation — first name, last name, age, description
+- [x] Search — reveals items, NPCs, enemies, and exits per room
+- [x] Inventory and status display
+- [x] Help screen and invalid command handling
+- [x] Secret tunnel (Forest ↔ Dungeon) with torch death trap
+- [x] `riskCheck()` — 80/20 chance to slip past enemies when searching or taking
+- [x] `take <item>` command with risk check integration
+- [x] `talk to <name>` with `talkedTo` set for quest state tracking
+- [x] `findRoom()`, `getYesNo()` helpers
+- [x] `Utils.h` — clearScreen, printBorder, printDivider, printCentered, printWrapped, printTwoSided, displayError, pause
+- [x] Dynamic enemy spawning — 5 enemy types, randomized per room each run
+- [x] Spawn helpers — spawnGoblins, spawnSkeleton, spawnThief, spawnOrc, spawnTroll
+- [x] Difficulty selection — Easy / Medium / Hard with stat scaling and spawn count scaling
+- [x] Road Out of Town — flavor text changes based on quest state, quit prompt
+- [x] Turn-based combat — stab, slash, block, use potion, run
+- [x] `combatStatus()` — live HP display during combat
+- [x] Combat death checks — enemy and player
+- [x] Stab/slash damage rebalance — stab guaranteed, slash high risk/high reward
+- [x] Dev test suite — Test Tavern with combat and room setup tests
+- [x] GitHub repository with README, roadmap, and changelog
+- [x] Full comment and formatting pass across all source files
+
 ### Phase 1 — Core Game Loop *(current)*
 - [ ] Tiered enemy spawning — restrict heavy enemies to deep rooms
 - [ ] Gear stat system — items modify player stats on pickup

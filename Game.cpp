@@ -559,6 +559,7 @@ void Game::fight(string input) {
 
     // Find target enemy in current room (case-insensitive match)
     Enemy* target = nullptr;
+    Enemy* target2 = nullptr;
     string inputLower = input;
     transform(inputLower.begin(), inputLower.end(), inputLower.begin(), ::tolower);
 
@@ -835,14 +836,16 @@ void Game::talkToNPC(string name) {
 // double goblin spawn on medium difficulty.
 // After spawning, all enemies in the room have stats scaled to difficulty.
 void Game::spawnEncounter(Room* room) {
-    int randNum  = rand() % 5;
-    int randNum2 = rand() % 2;
+
+    bool isLowLvlRoom = (room->getName() == "Town Square" ||
+                       room->getName() == "Windmill"    ||
+                       room->getName() == "Church"      ||
+                       room->getName() == "Castle Kitchen");
+    int randNum  = isLowLvlRoom ? rand() % 2 : rand() % 2;
 
     switch (randNum) {
         case 0: // Goblins — 1 pair on easy, 50/50 double on medium, always double on hard
             spawnGoblins(room);
-            if (difficulty == "medium" && randNum2 == 1) spawnGoblins(room);
-            if (difficulty == "hard")                    spawnGoblins(room);
             break;
 
         case 1: // Skeleton — solo on easy/medium, double on hard
@@ -850,9 +853,7 @@ void Game::spawnEncounter(Room* room) {
             if (difficulty == "hard") spawnSkeleton(room);
             break;
 
-        case 2: // Thieves — 3 on easy, 4 on medium, 5 on hard
-            spawnThief(room);
-            spawnThief(room);
+        case 2: // Thieves — 1 on easy, 2 on medium, 3 on hard
             spawnThief(room);
             if (difficulty == "medium" || difficulty == "hard") spawnThief(room);
             if (difficulty == "hard")                           spawnThief(room);
